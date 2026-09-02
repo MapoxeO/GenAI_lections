@@ -7,6 +7,7 @@ from decouple import config
 
 from .tool_calculator import CalculatorTool
 from .tool_websearch import WebSearchTool
+from .tool_translator import TranslatorTool
 
 class LLMAgent:
     """
@@ -15,7 +16,7 @@ class LLMAgent:
     """
 
     def __init__(self, model: str = "tngtech/deepseek-r1t2-chimera", local: bool = False, 
-                 ollama_base_url: str = "http://localhost:11434", ollama_model: str = "qwen3:0.6b"):
+                 ollama_base_url: str = "http://localhost:11434", ollama_model: str = "qwen3.5:4b"):
         """
         Инициализирует агента.
         
@@ -42,6 +43,7 @@ class LLMAgent:
         self.tools = {
             "calculator": CalculatorTool(),
             "web_search": WebSearchTool(),
+            "translator": TranslatorTool(),
         }
         self.conversation_history = []
     
@@ -80,13 +82,15 @@ class LLMAgent:
         Создает план действий, используя LLM.
         Работает как с OpenRouter, так и с Ollama.
         """
+
         # Системный промпт, который объясняет агенту его роль и формат ответа
         system_prompt = f"""
         You are a helpful AI planning assistant. Analyze the user's request and decide if you need to use any tools.
 
         Available tools:
-        - **calculator**: For any math-related questions (numbers, calculations). Use it with the full expression.
-        - **web_search**: For finding any information about the real world (current events, facts, definitions). Use it with the user's question or a clear search query. USE ONLY RUSSIAN LANGUAGE QUERIES in this tool.
+        - **calculator**: For any math-related questions (numbers, calculations). Use it with the full expression. Keys: 'expression'.
+        - **web_search**: For finding any information about the real world (current events, facts, definitions). Use it with the user's question or a clear search query. USE ONLY RUSSIAN LANGUAGE QUERIES in this tool. Keys: 'query'.
+        - **translator**: For translating text from one language to another. Use it when text is needed to be translated. Keys: 'text', 'source_lang', 'target_lang'.
 
         Your response MUST be ONLY a JSON object of the following format.
         If one or more tools are needed to answer, return JSON of this structure:
@@ -96,6 +100,13 @@ class LLMAgent:
             ... //MORE ACTIONS IF NEEDED SEVERAL TOOLS. ONE ACTION FOR ONE TOOL CALL
         ]
         }}
+        Text in "input" for action must be JSON of this stucture:
+        "{{
+            "key1": "value1",
+            "key2": "value2",
+            ... // MORE KEYS IF ACTION NEEDS THEM
+        }}"
+
         If no tool is needed, return an empty plan: {{"plan": []}}.
         """
 
@@ -211,7 +222,7 @@ class LLMAgent:
 
             if tool_name in self.tools:
                 print(f"Выполняется инструмент: '{tool_name}'")
-                result = self.tools[tool_name].use(tool_input)
+                result = self.tools[tool_name].use(**tool_input)
                 print(f"Результат: {result}...")
                 
                 # Добавляем результат в историю
