@@ -22,6 +22,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
 
       - name: Install dependecies
         working-directory: 3_1_LLM_agent
@@ -31,7 +32,7 @@ jobs:
 
       - name: Start libretranslate server
         run: |
-          libretranslate --load-only en,ru --offline &
+          libretranslate --load-only en,ru &
           echo "Waiting for LibreTranslate to boot up..."
           for i in {1..20}; do
             if curl -s http://127.0.0 > /dev/null; then
