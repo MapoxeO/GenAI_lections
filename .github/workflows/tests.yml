@@ -31,7 +31,15 @@ jobs:
 
       - name: Start libretranslate server
         run: |
-          libretranslate
+          libretranslate --load-only en,ru --offline &
+          echo "Waiting for LibreTranslate to boot up..."
+          for i in {1..20}; do
+            if curl -s http://127.0.0 > /dev/null; then
+              echo "LibreTranslate is ready!"
+              break
+            fi
+            sleep 2
+          done
 
       - name: Run unit-tests with coverage
         working-directory: 3_1_LLM_agent
