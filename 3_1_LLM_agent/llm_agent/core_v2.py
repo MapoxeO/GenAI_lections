@@ -9,7 +9,6 @@ from .tool_calculator import CalculatorTool
 from .tool_websearch import WebSearchTool
 from .tool_translator import TranslatorTool
 
-
 class LLMAgent:
     """
     LLM-агент, который планирует и выполняет задачи с помощью инструментов.
