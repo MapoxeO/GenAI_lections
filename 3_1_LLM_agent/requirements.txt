@@ -1,0 +1,8 @@
+requests
+python-decouple
+ddgs
+pytest
+libretranslatepy
+libretranslate
+coverage
+coverage-badge
