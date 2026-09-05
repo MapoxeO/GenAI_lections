@@ -16,10 +16,10 @@ jobs:
 
 		steps:
 			- name: Download repository
-				uses: actions/checkout@4
+				uses: actions/checkout@4v
 
 			- name: Set up Python
-				uses: actions/setup-python@5
+				uses: actions/setup-python@5v
 				with:
 					python-version: '3.11'
 					cache: 'pip'
