@@ -69,7 +69,7 @@ jobs:
     timeout-minutes: 40
 
     steps:
-      - name: Checkout repository
+      - name: Download repository
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -112,6 +112,18 @@ jobs:
 
       - name: Pull qwen3.5 model (skipped if already cached)
         run: ollama pull qwen3.5
+
+      - name: Start libretranslate server
+        run: |
+          libretranslate --load-only en,ru &
+          echo "Waiting for LibreTranslate to boot up..."
+          for i in {1..20}; do
+            if curl -s http://127.0.0 > /dev/null; then
+              echo "LibreTranslate is ready!"
+              break
+            fi
+            sleep 2
+          done
 
       - name: Run LLMAgent integration tests against Ollama
         working-directory: 3_1_LLM_agent

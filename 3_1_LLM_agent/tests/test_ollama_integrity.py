@@ -18,7 +18,6 @@ def test_process_query_returns_non_empty_answer():
 	('What is 1 + 4 + 9? Answer only with one number.', '14', True),
 	('Translate pharse "How are you?" into Russian. Answer only with translated phrase.', 'Как дела?', True),
 	('Hello!', 'Hello', False),
-	#('28 stab wounds', '28 ножевых ранений'),
 ])
 def test_usage_of_actions(case):
 	test_query, awaited, used_tool = case
@@ -26,4 +25,7 @@ def test_usage_of_actions(case):
 	query = base_query + test_query
 	response = agent.process_query(query)
 
-	assert (awaited in query) and (('<USED TOOL>' in response) == used_tool)
+	# debug-only
+	print(f'Model\'s response for query: {response}')
+
+	assert (awaited in response) and (('<USED TOOL>' in response) == used_tool)
