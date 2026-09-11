@@ -64,8 +64,6 @@ jobs:
 
   ollama-integration:
     runs-on: ubuntu-latest
-    # qwen3.5 (6.6 GB) генерирует ответы на CPU-раннере без GPU заметно
-    # медленнее, чем на локальной машине — держим запас по времени.
     timeout-minutes: 40
 
     steps:
@@ -82,6 +80,18 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Start libretranslate server
+        run: |
+          libretranslate --load-only en,ru &
+          echo "Waiting for LibreTranslate to boot up..."
+          for i in {1..20}; do
+            if curl -s http://127.0.0:5000 > /dev/null; then
+              echo "LibreTranslate is ready!"
+              break
+            fi
+            sleep 2
+          done
 
       - name: Point Ollama at a cache-friendly models directory
         run: echo "OLLAMA_MODELS=$HOME/.ollama/models" >> "$GITHUB_ENV"
@@ -112,18 +122,6 @@ jobs:
 
       - name: Pull qwen3.5 model (skipped if already cached)
         run: ollama pull qwen3.5
-
-      - name: Start libretranslate server
-        run: |
-          libretranslate --load-only en,ru &
-          echo "Waiting for LibreTranslate to boot up..."
-          for i in {1..20}; do
-            if curl -s http://127.0.0 > /dev/null; then
-              echo "LibreTranslate is ready!"
-              break
-            fi
-            sleep 2
-          done
 
       - name: Run LLMAgent integration tests against Ollama
         working-directory: 3_1_LLM_agent
