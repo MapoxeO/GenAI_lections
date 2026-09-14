@@ -3,7 +3,7 @@
 from libretranslatepy import LibreTranslateAPI
 
 class TranslatorTool:
-	#"""Инструмент для перевода текста с одного языка на другой через бесплатный API GoogleTrans"""
+	"""Инструмент для перевода текста с одного языка на другой через бесплатный API libretranslate-server"""
 	name: str = 'translator'
 	description: str = 'Переводит текст с одного языка на другой'
 	translator = LibreTranslateAPI('http://localhost:5000')
@@ -22,4 +22,4 @@ class TranslatorTool:
 		except Exception as e:
 			# Это сообщение будет выведено в лог, если ошибка возникнет на самом верхнем уровне
 			print(f"> Ошибка при выполнении перевода: {e}")
-			return f"Произошла ошибка при попытке перевода текста '{text}' с языка '{source_lang}' на язык '{target_lang}': {e}"
+			raise Exception(str(e))
