@@ -20,7 +20,7 @@ def test_process_query_returns_non_empty_answer(agent):
 @pytest.mark.parametrize('case', [
 	('What is 1 + 4 + 9? Use tool \'Calculator\' and answer only with one number.', '14', True),
 	('Translate pharse "How are you?" into Russian. Use tool \'Translator\'. Answer only with translated phrase.', 'Как дела?', True),
-	('Answer Hello!', 'Hello', False),
+	('Answer \'Hello\' in English.', 'Hello', False),
 ])
 def test_usage_of_actions(agent, case):
 	test_query, awaited, used_tool = case
