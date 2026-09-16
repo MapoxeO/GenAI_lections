@@ -24,11 +24,11 @@ def test_process_query_returns_non_empty_answer(agent):
 ])
 def test_usage_of_actions(agent, case):
 	test_query, awaited, used_tool = case
-	base_query = 'Solve given task. If you have used tools then append to the answer string "<USED TOOL>" else append "<NOT USED TOOL>". '
-	query = base_query + test_query
+	base_query = 'Solve given task. If you have used tools then append to the answer string token ONLY "<USED_TOOL>" else append ONLY "<NOT_USED_TOOL>".'
+	query = f'{base_query} USER QUERY: {test_query}'
 	response = agent.process_query(query)
 
 	# debug-only
 	print(f'Model\'s response for query: {response}')
 
-	assert (awaited in response) and (('<USED TOOL>' in response) == used_tool)
+	assert (awaited in response) and (('<USED_TOOL>' in response) == used_tool)
