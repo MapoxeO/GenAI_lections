@@ -195,12 +195,15 @@ class LLMAgent:
         """
         print(f"Агент анализирует ваш запрос... (Режим: {'локальный Ollama' if self.local else 'OpenRouter'})")
         
+        # КРИТИЧЕСКИ ВАЖНО: Очищаем историю перед каждым НОВЫМ запросом,
+        # чтобы результаты прошлых тестов не ломали контекст текущего.
+        self.conversation_history = []
+        
         # --- Шаг 1: Планирование ---
         plan = self._ask_llm_for_plan(query)
 
         if not plan:
             print("Инструменты не требуются. Генерирую ответ напрямую.")
-            # Генерируем прямой ответ через LLM
             direct_prompt = f"Ответьте на следующий вопрос кратко и информативно: {query}"
             payload = {
                 "model": self.model,
@@ -210,7 +213,7 @@ class LLMAgent:
                 payload["stream"] = False
             try:
                 response_data = self._make_api_request(payload)
-                return response_data["choices"][0]["message"]["content"]
+                return response_data["choices"][0]["message"]["content"].strip()
             except:
                 return "Извините, не удалось сгенерировать ответ."
 
@@ -220,25 +223,43 @@ class LLMAgent:
             tool_name = step.get('action')
             tool_input = step.get('input')
 
+            # Если модель вернула input как строку JSON, распарсим её в dict
+            if isinstance(tool_input, str):
+                try:
+                    tool_input = json.loads(tool_input)
+                except json.JSONDecodeError:
+                    pass
+
             if tool_name in self.tools:
                 print(f"Выполняется инструмент: '{tool_name}'")
-                result = self.tools[tool_name].use(**tool_input)
-                print(f"Результат: {result}...")
-                
-                # Добавляем результат в историю
-                self.conversation_history.append({
-                    'role': 'system',
-                    'content': f"Tool {tool_name} result: {result}"
-                })
+                try:
+                    # Вызываем инструмент, распаковывая аргументы
+                    if isinstance(tool_input, dict):
+                        result = self.tools[tool_name].use(**tool_input)
+                    else:
+                        result = self.tools[tool_name].use(tool_input)
+                        
+                    print(f"Результат: {result}...")
+                    
+                    # Добавляем результат в историю выполнения
+                    self.conversation_history.append({
+                        'content': f"Tool '{tool_name}' executed. Result: {result}"
+                    })
+                except Exception as e:
+                    print(f"Ошибка при вызове инструмента: {e}")
+                    self.conversation_history.append({
+                        'content': f"Tool '{tool_name}' failed with error: {e}"
+                    })
             else:
                 error_msg = f"Ошибка: инструмент с именем '{tool_name}' не найден."
                 print(error_msg)
-                self.conversation_history.append({'role': 'system', 'content': error_msg})
+                self.conversation_history.append({'content': error_msg})
         
         # --- Шаг 3: Генерация финального ответа ---
         print("Составляю финальный ответ...")
         final_response = self._generate_final_response(query)
         return final_response
+
 
     def test_ollama_connection(self) -> bool:
         """
