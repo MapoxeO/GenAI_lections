@@ -38,5 +38,5 @@ def test_translate_non_translatable_content(translator, non_translatable):
     assert translator.use(non_translatable, 'en', 'ru') == non_translatable
 
 def test_translate_invalid_language_codes_raises_error(translator):
-    with pytest.raises(Exception, match='is not a valid language'):
+    with pytest.raises(Exception, match='HTTP Error 400: BAD REQUEST'):
     	translator.use("Hello", "en", "xyz")

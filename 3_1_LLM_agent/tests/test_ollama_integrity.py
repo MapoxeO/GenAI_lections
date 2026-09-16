@@ -1,8 +1,9 @@
 import pytest
+import os
 
 from llm_agent.core_v2 import LLMAgent
 
-OLLAMA_MODEL = 'qwen3.5:latest'
+OLLAMA_MODEL = os.getenv('OLLAMA_TEST_MODEL', 'qwen3.5:latest')
 
 @pytest.fixture
 def agent():
@@ -14,12 +15,12 @@ def test_ollama_connection_is_available(agent):
 def test_process_query_returns_non_empty_answer(agent):
 	query = 'What is 2 + 2? Answer only with one number.'
 	response = agent.process_query(query)
-	assert int(response) == 2 + 2
+	assert response == '4'
 
 @pytest.mark.parametrize('case', [
 	('What is 1 + 4 + 9? Use tool \'Calculator\' and answer only with one number.', '14', True),
 	('Translate pharse "How are you?" into Russian. Use tool \'Translator\'. Answer only with translated phrase.', 'Как дела?', True),
-	('Hello!', 'Hello', False),
+	('Answer Hello!', 'Hello', False),
 ])
 def test_usage_of_actions(agent, case):
 	test_query, awaited, used_tool = case

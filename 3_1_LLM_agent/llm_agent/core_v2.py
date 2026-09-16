@@ -90,7 +90,7 @@ class LLMAgent:
         Available tools:
         - **calculator**: For any math-related questions (numbers, calculations). Use it with the full expression. Keys: 'expression'.
         - **web_search**: For finding any information about the real world (current events, facts, definitions). Use it with the user's question or a clear search query. USE ONLY RUSSIAN LANGUAGE QUERIES in this tool. Keys: 'query'.
-        - **translator**: For translating text from one language to another. Use it when text is needed to be translated. Keys: 'text', 'source_lang', 'target_lang'.
+        - **translator**: For translating text from one language to another. Use it when text is needed to be translated. Keys: 'text', 'source_lang', 'target_lang'. Both of 'source_lang' and 'target_lang' use languade codes, e.g. for Russian it is 'ru' and for English it is 'en'.
 
         Your response MUST be ONLY a JSON object of the following format.
         If one or more tools are needed to answer, return JSON of this structure:
