@@ -18,8 +18,8 @@ def test_process_query_returns_non_empty_answer(agent):
 	assert response == '4'
 
 @pytest.mark.parametrize('case', [
-	('What is 1 + 4 + 9? Use tool \'Calculator\' and answer only with one number.', '14', True),
-	('Translate pharse "How are you?" into Russian. Use tool \'Translator\'. Answer only with translated phrase.', 'Как дела?', True),
+	('What is 1 + 4 + 9? You HAVE to use tool \'Calculator\' and answer only with one number.', '14', True),
+	('Translate pharse "How are you?" into Russian. You HAVE to use tool \'Translator\' and answer only with translated phrase.', 'Как дела?', True),
 	('Answer \'Hello\' in English.', 'Hello', False),
 ])
 def test_usage_of_actions(agent, case):
